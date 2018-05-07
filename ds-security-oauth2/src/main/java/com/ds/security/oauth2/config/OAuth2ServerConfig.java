@@ -1,12 +1,14 @@
 package com.ds.security.oauth2.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -16,7 +18,11 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
+
+import java.util.Arrays;
 
 /**
  * @author duosheng
@@ -66,6 +72,8 @@ public class OAuth2ServerConfig {
         AuthenticationManager authenticationManager;
         @Autowired
         RedisConnectionFactory redisConnectionFactory;
+        @Autowired
+        UserDetailsService userDetailsService;
 
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -90,12 +98,30 @@ public class OAuth2ServerConfig {
                     .secret(finalSecret);
         }
 
+        @Bean
+        public JwtAccessTokenConverter jwtAccessTokenConverter() {
+            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+            jwtAccessTokenConverter.setSigningKey("DS");
+            return jwtAccessTokenConverter;
+        }
+
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+            // token增强配置使用JWT加密
+            TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+            tokenEnhancerChain.setTokenEnhancers(Arrays.asList(jwtAccessTokenConverter()));
+
             endpoints
                     .tokenStore(new RedisTokenStore(redisConnectionFactory))
+                    .tokenEnhancer(tokenEnhancerChain)
                     .authenticationManager(authenticationManager)
+                    // 必须要注入userDetailsService,否则根据refresh_token无法加载用户信息，因为
+                    // 我们只传递了client的信息
+                    .userDetailsService(userDetailsService)
                     .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
+
+            // 默认情况下，client模式不支持刷新token，password模式支持刷新token
+            endpoints.reuseRefreshTokens(true);
         }
 
         @Override
@@ -104,4 +130,5 @@ public class OAuth2ServerConfig {
             security.allowFormAuthenticationForClients();
         }
     }
+
 }
