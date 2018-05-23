@@ -3,6 +3,7 @@ package com.ds.security.oauth2.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -57,6 +58,7 @@ public class OAuth2ServerConfig {
                     .authorizeRequests()
                     // .antMatchers("/product/**").access("#oauth2.hasScope('select') and hasRole('ROLE_USER')")
                     // 配置order访问控制，必须认证过后才可以访问
+                    .antMatchers(("/login")).permitAll()
                     .antMatchers("/order/**").authenticated();
         }
     }
@@ -94,6 +96,7 @@ public class OAuth2ServerConfig {
                     .resourceIds(DS_RESOURCE_ID)
                     .authorizedGrantTypes("password", "refresh_token")
                     .scopes("select")
+                    .autoApprove(true)
                     .authorities("oauth2")
                     .secret(finalSecret);
         }

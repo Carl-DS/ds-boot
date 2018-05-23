@@ -31,7 +31,6 @@ public class SpringBootMongodbApplicationTests {
         staticParameterRepository.save(staticParameter);
         Assert.assertEquals(1, staticParameterRepository.count());
         Assert.assertEquals("GS001", staticParameterRepository.findByProductNo("GS001").getProductNo());
-
     }
 
 }

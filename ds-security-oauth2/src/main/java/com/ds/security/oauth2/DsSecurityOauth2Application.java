@@ -3,6 +3,9 @@ package com.ds.security.oauth2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * @author duosheng
+ */
 @SpringBootApplication
 public class DsSecurityOauth2Application {
 
