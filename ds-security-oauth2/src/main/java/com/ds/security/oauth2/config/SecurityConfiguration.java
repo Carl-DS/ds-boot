@@ -1,9 +1,7 @@
 package com.ds.security.oauth2.config;
 
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,13 +23,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     /**
      * 在内存中配置两个用户
+     *
      * @return
      */
     @Bean
     @Override
-    protected UserDetailsService userDetailsService(){
+    protected UserDetailsService userDetailsService() {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        String finalPassword = "{bcrypt}"+bCryptPasswordEncoder.encode("123456");
+        String finalPassword = "{bcrypt}" + bCryptPasswordEncoder.encode("123456");
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
         manager.createUser(User.withUsername("user_1").password(finalPassword).authorities("USER").build());
         manager.createUser(User.withUsername("user_2").password(finalPassword).authorities("USER").build());
