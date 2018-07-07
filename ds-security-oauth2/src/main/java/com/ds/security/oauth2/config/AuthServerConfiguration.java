@@ -3,7 +3,6 @@ package com.ds.security.oauth2.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,38 +29,38 @@ import java.util.Arrays;
  * @date 2018/5/7
  */
 @Configuration
-public class OAuth2ServerConfig {
+public class AuthServerConfiguration {
 
     private static final String DS_RESOURCE_ID = "order";
 
     /**
      * 资源服务器
      */
-    @Configuration
-    @EnableResourceServer
-    protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-
-        @Override
-        public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-            resources.resourceId(DS_RESOURCE_ID).stateless(true);
-        }
-
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            http
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                    .and()
-                    .requestMatchers().anyRequest()
-                    .and()
-                    .anonymous()
-                    .and()
-                    .authorizeRequests()
-                    // .antMatchers("/product/**").access("#oauth2.hasScope('select') and hasRole('ROLE_USER')")
-                    // 配置order访问控制，必须认证过后才可以访问
-                    .antMatchers(("/login")).permitAll()
-                    .antMatchers("/order/**").authenticated();
-        }
-    }
+    // @Configuration
+    // @EnableResourceServer
+    // protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
+    //
+    //     @Override
+    //     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+    //         resources.resourceId(DS_RESOURCE_ID).stateless(true);
+    //     }
+    //
+    //     @Override
+    //     public void configure(HttpSecurity http) throws Exception {
+    //         http
+    //                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+    //                 .and()
+    //                 .requestMatchers().anyRequest()
+    //                 .and()
+    //                 .anonymous()
+    //                 .and()
+    //                 .authorizeRequests()
+    //                 // .antMatchers("/product/**").access("#oauth2.hasScope('select') and hasRole('ROLE_USER')")
+    //                 // 配置order访问控制，必须认证过后才可以访问
+    //                 .antMatchers("/order/**").authenticated()
+    //                 .anyRequest().permitAll();
+    //     }
+    // }
 
     /**
      * 授权服务器
